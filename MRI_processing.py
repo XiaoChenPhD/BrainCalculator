@@ -1,6 +1,10 @@
 from __future__ import unicode_literals, print_function
 from builtins import str
 
+import os
+os.environ['PATH'] += ':/Applications/BrainSuite21a/bin'
+os.environ['PATH'] += ':/Applications/BrainSuite21a/bdp'
+os.environ['PATH'] += ':/Applications/BrainSuite21a/svreg/bin'
 
 
 #Checking brainsuite executable path
@@ -25,17 +29,17 @@ config.update_config(cfg)
 import nipype.pipeline.engine as pe
 import nipype.interfaces.brainsuite as bs
 import nipype.interfaces.io as io
-import os
 from distutils.spawn import find_executable
 import fnmatch
 from glob import glob1
+
+
 
 brainsuite_atlas_directory = find_executable('bse')[:-3] + '../atlas/'
 
 def main(input_path):
     brainsuite_workflow = pe.Workflow(name='brainsuite_workflow_cse')
     brainsuite_workflow.base_dir='./'
-
 
     bseObj = pe.Node(interface=bs.Bse(), name='BSE')
     bseObj.inputs.inputMRIFile = input_path
@@ -72,28 +76,33 @@ def main(input_path):
 
     brainsuite_workflow.run()
 
+# my test data
+test_path = '/Users/ChenXiao/Documents/My_Documents/TMS_target/scalp2cortical_distance' \
+            '/test/Ex05345_Se00002_T1w-Sag-Struct_T1w_Sag_Struct_20160427124102_2_Crop_1.nii.gz'
+main(test_path)
 
-from tqdm import tqdm
 
-age_path ='ADNI'
-
-roots = []
-ch_dirs = []
-n = 0
-for root, dirs, files in os.walk(age_path):
-    fileCounter = len(glob1(root,"*.nii.gz"))
-    if fileCounter == 1 and 'brainsuite_workflow_cse' not in root and 'brainsuite_workflow_cse' not in dirs:
-        ch_dirs += [root]
-        roots += [os.path.join(root,glob1(root,"*.nii.gz")[0])]
-print(len(roots))
-
-oldpwd = os.getcwd()
-
-for i in tqdm(range(len(roots))):   
-    try: 
-        path = os.path.join('~/Research', roots[i])
-        os.chdir(ch_dirs[i])
-        main(path)
-    except:
-        pass 
-    os.chdir(oldpwd)
+# from tqdm import tqdm
+#
+# age_path ='ADNI'
+#
+# roots = []
+# ch_dirs = []
+# n = 0
+# for root, dirs, files in os.walk(age_path):
+#     fileCounter = len(glob1(root,"*.nii.gz"))
+#     if fileCounter == 1 and 'brainsuite_workflow_cse' not in root and 'brainsuite_workflow_cse' not in dirs:
+#         ch_dirs += [root]
+#         roots += [os.path.join(root,glob1(root,"*.nii.gz")[0])]
+# print(len(roots))
+#
+# oldpwd = os.getcwd()
+#
+# for i in tqdm(range(len(roots))):
+#     try:
+#         path = os.path.join('~/Research', roots[i])
+#         os.chdir(ch_dirs[i])
+#         main(path)
+#     except:
+#         pass
+#     os.chdir(oldpwd)
